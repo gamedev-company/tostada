@@ -8,5 +8,5 @@
 - [x] Consolidate migrations into a single setup migration
 - [x] Scrub deployment pipeline + model processing scripts
 - [x] Add `make new` initializer (app/module/url renames)
-- [ ] Initialize git repo + publish to `gamedev-company/tostada` via `gh`
+- [x] Initialize git repo + publish to `gamedev-company/tostada` via `gh`
 - [ ] Verify build/dev flow (`make install`, `make db.setup`, `make dev`)
