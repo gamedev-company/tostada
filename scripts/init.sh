@@ -66,6 +66,8 @@ skip_dirs = {".git", "_build", "deps", "node_modules", "priv/static", ".svelte-k
 for path in root.rglob("*"):
     if not path.is_file():
         continue
+    if path.name == "init.sh":
+        continue
     if path.suffix not in extensions:
         continue
     if any(part in skip_dirs for part in path.parts):
