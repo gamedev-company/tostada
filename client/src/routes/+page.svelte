@@ -1,112 +1,98 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { connectSocket, disconnectSocket, pingSocket, socketStatus, lastSocketError } from '$lib';
+  import { Canvas, PerspectiveCamera, useFrame } from '@threlte/core';
+  import { OrbitControls } from '@threlte/extras';
+  import type { Mesh } from 'three';
 
-  let user: { email: string; display_name: string; is_admin: boolean } | null = null;
-  let pingResult: Record<string, unknown> | null = null;
-  let isLoading = false;
+  let mesh: Mesh | undefined;
+  let t = 0;
 
-  async function loadUser() {
-    const res = await fetch('/api/me', { credentials: 'include' });
-    if (!res.ok) {
-      user = null;
-      return;
+  useFrame((_, delta) => {
+    t += delta;
+    if (mesh) {
+      mesh.rotation.x += delta * 0.2;
+      mesh.rotation.y += delta * 0.6;
+      mesh.position.y = Math.sin(t) * 0.15;
     }
-    const data = await res.json();
-    user = data.user;
-  }
-
-  async function handleConnect() {
-    isLoading = true;
-    try {
-      await connectSocket();
-    } finally {
-      isLoading = false;
-    }
-  }
-
-  async function handlePing() {
-    pingResult = await pingSocket({ message: 'hello from svelte' });
-  }
-
-  onMount(() => {
-    loadUser();
   });
 </script>
 
-<section class="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-14">
-  <div class="space-y-4">
-    <p class="text-sm uppercase tracking-[0.35em] text-slate-400">SvelteKit Client</p>
-    <h1 class="text-4xl font-semibold">Welcome to the Tostada app shell</h1>
-    <p class="max-w-2xl text-slate-300">
-      This is the minimal SvelteKit surface. It talks to Phoenix through the Vite dev proxy
-      and authenticates sockets with `/api/socket-token` when cookies are blocked.
-    </p>
-  </div>
+<div class="scene">
+  <Canvas clearColor="#050505" dpr={[1, 2]}>
+    <PerspectiveCamera makeDefault position={[0, 1.2, 4]} fov={45} />
 
-  <div class="grid gap-6 lg:grid-cols-2">
-    <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-6">
-      <h2 class="text-lg font-semibold">Session</h2>
-      <p class="mt-2 text-sm text-slate-300">
-        {#if user}
-          Logged in as <span class="font-semibold text-amber-200">{user.display_name}</span>
-          <span class="text-slate-400">({user.email})</span>
-        {:else}
-          Not authenticated. Log in on the Phoenix side and refresh.
-        {/if}
-      </p>
-      <div class="mt-4 flex flex-wrap gap-3">
-        <a
-          class="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-300"
-          href="/users/log-in"
-        >
-          Log In
-        </a>
-        <a
-          class="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-300"
-          href="/users/register"
-        >
-          Register
-        </a>
-      </div>
-    </div>
+    <ambientLight intensity={0.6} />
+    <directionalLight position={[4, 6, 5]} intensity={1.1} />
+    <directionalLight position={[-4, -3, -2]} intensity={0.4} color="#7dd3fc" />
 
-    <div class="rounded-2xl border border-slate-700/70 bg-slate-900/70 p-6">
-      <h2 class="text-lg font-semibold">Socket</h2>
-      <p class="mt-2 text-sm text-slate-300">
-        Status: <span class="font-semibold">{$socketStatus}</span>
-      </p>
-      {#if $lastSocketError}
-        <p class="mt-2 text-sm text-rose-300">{$lastSocketError}</p>
-      {/if}
+    <mesh bind:this={mesh} position={[0, 0, 0]}>
+      <boxGeometry args={[1.6, 0.4, 1.0]} />
+      <meshStandardMaterial color="#f59e0b" metalness={0.2} roughness={0.35} />
+    </mesh>
 
-      <div class="mt-4 flex flex-wrap gap-3">
-        <button
-          class="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-300 disabled:opacity-60"
-          on:click={handleConnect}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Connecting...' : 'Connect'}
-        </button>
-        <button
-          class="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-300"
-          on:click={disconnectSocket}
-        >
-          Disconnect
-        </button>
-        <button
-          class="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-300"
-          on:click={handlePing}
-        >
-          Ping
-        </button>
-      </div>
+    <OrbitControls enableZoom={false} enablePan={false} />
+  </Canvas>
 
-      {#if pingResult}
-        <pre class="mt-4 rounded-xl bg-slate-950/70 p-3 text-xs text-slate-200">
-{JSON.stringify(pingResult, null, 2)}
-        </pre>
-      {/if}
-    </div>
-  </div>
-</section>
+  <nav class="auth-nav">
+    <a href="/users/log-in" aria-label="Log in">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+        <path d="M10 17l5-5-5-5" />
+        <path d="M15 12H3" />
+      </svg>
+    </a>
+    <a href="/users/register" aria-label="Register">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M19 8v6" />
+        <path d="M22 11h-6" />
+      </svg>
+    </a>
+  </nav>
+</div>
+
+<style>
+  .scene {
+    position: fixed;
+    inset: 0;
+    background: #050505;
+  }
+
+  :global(canvas) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .auth-nav {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .auth-nav a {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.6);
+    transition: border-color 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .auth-nav a:hover {
+    color: #f8fafc;
+    border-color: rgba(226, 232, 240, 0.9);
+    transform: translateY(-1px);
+  }
+
+  .auth-nav svg {
+    width: 18px;
+    height: 18px;
+  }
+</style>
