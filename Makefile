@@ -164,7 +164,7 @@ deploy.full: ## Pull + build + deploy (server/scripts/deploy/full-deploy.sh)
 # =============================================================================
 
 new: ## Initialize a fresh project (usage: make new APP_NAME=acme APP_MODULE=Acme)
-	APP_NAME=$(APP_NAME) APP_MODULE=$(APP_MODULE) APP_HUMAN=$(APP_HUMAN) APP_HOST=$(APP_HOST) ./scripts/init.sh
+	APP_NAME="$(APP_NAME)" APP_MODULE="$(APP_MODULE)" APP_HUMAN="$(APP_HUMAN)" APP_HOST="$(APP_HOST)" ./scripts/init.sh
 
 # =============================================================================
 # Cleanup
