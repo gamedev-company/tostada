@@ -23,6 +23,8 @@ if [ -z "$APP_HUMAN" ]; then
   APP_HUMAN="$APP_MODULE"
 fi
 
+export ROOT_DIR OLD_APP_NAME OLD_MODULE OLD_WEB_MODULE NEW_WEB_MODULE APP_NAME APP_MODULE APP_HUMAN APP_HOST
+
 # Rename key directories/files
 if [ -d "$ROOT_DIR/server/lib/$OLD_APP_NAME" ]; then
   mv "$ROOT_DIR/server/lib/$OLD_APP_NAME" "$ROOT_DIR/server/lib/$APP_NAME"
@@ -41,20 +43,21 @@ if [ -d "$ROOT_DIR/server/test/${OLD_APP_NAME}_web" ]; then
 fi
 
 # Replace text in project files
-python3 - <<PY
+python3 - <<'PY'
 from pathlib import Path
+import os
 
-root = Path("$ROOT_DIR")
-old_app = "$OLD_APP_NAME"
-new_app = "$APP_NAME"
-old_module = "$OLD_MODULE"
-new_module = "$APP_MODULE"
-old_web = "$OLD_WEB_MODULE"
-new_web = "$NEW_WEB_MODULE"
+root = Path(os.environ["ROOT_DIR"])
+old_app = os.environ["OLD_APP_NAME"]
+new_app = os.environ["APP_NAME"]
+old_module = os.environ["OLD_MODULE"]
+new_module = os.environ["APP_MODULE"]
+old_web = os.environ["OLD_WEB_MODULE"]
+new_web = os.environ["NEW_WEB_MODULE"]
 old_human = "Tostada"
-new_human = "$APP_HUMAN"
+new_human = os.environ.get("APP_HUMAN", "")
 old_host = "example.com"
-new_host = "$APP_HOST"
+new_host = os.environ.get("APP_HOST", "")
 
 extensions = {".ex", ".exs", ".heex", ".eex", ".js", ".ts", ".json", ".md", ".sh", ".yml", ".yaml", ".toml", ".css", ".html"}
 
