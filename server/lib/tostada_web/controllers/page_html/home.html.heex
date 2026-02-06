@@ -1,0 +1,67 @@
+<Layouts.flash_group flash={@flash} />
+
+<div class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-800 text-white">
+  <header class="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+    <div class="flex items-center gap-3">
+      <div class="h-10 w-10 rounded-xl bg-amber-400/20 ring-1 ring-amber-300/40"></div>
+      <div>
+        <p class="text-sm uppercase tracking-[0.3em] text-amber-200">Tostada</p>
+        <p class="text-lg font-semibold">Phoenix + SvelteKit Boilerplate</p>
+      </div>
+    </div>
+    <nav class="flex items-center gap-3">
+      <a
+        href={~p"/users/log-in"}
+        class="rounded-full border border-slate-600 px-4 py-2 text-sm text-slate-200 transition hover:border-slate-300 hover:text-white"
+      >
+        Log In
+      </a>
+      <a
+        href={~p"/users/register"}
+        class="rounded-full bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-300"
+      >
+        Register
+      </a>
+    </nav>
+  </header>
+
+  <main class="mx-auto flex max-w-6xl flex-col gap-12 px-6 pb-16 pt-10 lg:flex-row lg:items-center lg:justify-between">
+    <div class="max-w-2xl">
+      <h1 class="text-5xl font-semibold leading-tight md:text-6xl">
+        Ship a real-time app faster.
+      </h1>
+      <p class="mt-5 text-lg text-slate-300">
+        Tostada is a Phoenix + SvelteKit starter with authenticated sockets, an admin backend,
+        and a production-ready build pipeline that drops Svelte into Phoenix static assets.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center gap-4">
+        <a
+          href={~p"/app"}
+          class="rounded-xl bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-amber-300"
+        >
+          Launch App
+        </a>
+        <a
+          href={~p"/users/log-in"}
+          class="rounded-xl border border-slate-600 px-5 py-3 text-sm text-slate-200 transition hover:border-slate-300"
+        >
+          Manage Account
+        </a>
+      </div>
+    </div>
+
+    <div class="w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/60 p-6 shadow-xl">
+      <p class="text-sm uppercase tracking-[0.35em] text-slate-400">Included</p>
+      <ul class="mt-4 space-y-3 text-sm text-slate-200">
+        <li>Authenticated Phoenix sockets with token fallback</li>
+        <li>SvelteKit adapter-static output routed through Phoenix</li>
+        <li>Admin backend and user management</li>
+        <li>Makefile for dev, build, deploy, and model pipelines</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+    Built with Phoenix, SvelteKit, and a good dose of pragmatism.
+  </footer>
+</div>

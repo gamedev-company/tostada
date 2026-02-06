@@ -1,0 +1,17 @@
+[Unit]
+Description=Phoenix Application
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/srv/phoenix/app/server
+EnvironmentFile=/srv/phoenix/app/server/.env
+ExecStart=/srv/phoenix/app/server/_build/prod/rel/tostada/bin/tostada start
+ExecStop=/srv/phoenix/app/server/_build/prod/rel/tostada/bin/tostada stop
+Restart=on-failure
+RestartSec=5
+SyslogIdentifier=tostada
+
+[Install]
+WantedBy=multi-user.target

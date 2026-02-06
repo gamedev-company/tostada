@@ -1,0 +1,67 @@
+server/.env
+# ==============================================================================
+# Monorepo .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Server (Elixir/Phoenix)
+# ------------------------------------------------------------------------------
+
+# Mix build artifacts
+server/_build/
+server/deps/
+server/cover/
+server/doc/
+server/.fetch
+server/tmp/
+
+# Hex package tarball
+server/tostada-*.tar
+
+# Phoenix assets
+server/priv/static/assets/
+server/priv/static/cache_manifest.json
+server/assets/node_modules/
+server/priv/static/app/
+
+# ------------------------------------------------------------------------------
+# Client (SvelteKit) - future
+# ------------------------------------------------------------------------------
+
+client/node_modules/
+client/.svelte-kit/
+client/build/
+client/.env
+client/.env.*
+!client/.env.example
+
+# ------------------------------------------------------------------------------
+# Shared
+# ------------------------------------------------------------------------------
+
+# Erlang crash dumps
+erl_crash.dump
+
+# Editor/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# Archives
+*.ez
+*.tar.gz
+screenshots/
+
+# Large assets (synced separately via rsync)
+obj/
+logs/
