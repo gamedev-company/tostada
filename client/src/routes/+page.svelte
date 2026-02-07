@@ -1,35 +1,11 @@
 <script lang="ts">
-  import { Canvas, PerspectiveCamera, useFrame } from '@threlte/core';
-  import { OrbitControls } from '@threlte/extras';
-  import type { Mesh } from 'three';
-
-  let mesh: Mesh | undefined;
-  let t = 0;
-
-  useFrame((_, delta) => {
-    t += delta;
-    if (mesh) {
-      mesh.rotation.x += delta * 0.2;
-      mesh.rotation.y += delta * 0.6;
-      mesh.position.y = Math.sin(t) * 0.15;
-    }
-  });
+  import { Canvas } from '@threlte/core';
+  import Scene from './Scene.svelte';
 </script>
 
 <div class="scene">
-  <Canvas clearColor="#050505" dpr={[1, 2]}>
-    <PerspectiveCamera makeDefault position={[0, 1.2, 4]} fov={45} />
-
-    <ambientLight intensity={0.6} />
-    <directionalLight position={[4, 6, 5]} intensity={1.1} />
-    <directionalLight position={[-4, -3, -2]} intensity={0.4} color="#7dd3fc" />
-
-    <mesh bind:this={mesh} position={[0, 0, 0]}>
-      <boxGeometry args={[1.6, 0.4, 1.0]} />
-      <meshStandardMaterial color="#f59e0b" metalness={0.2} roughness={0.35} />
-    </mesh>
-
-    <OrbitControls enableZoom={false} enablePan={false} />
+  <Canvas>
+    <Scene />
   </Canvas>
 
   <nav class="auth-nav">

@@ -35,8 +35,8 @@ export async function connectSocket(): Promise<void> {
     channel
       ?.join()
       .receive('ok', () => resolve())
-      .receive('error', (err) => {
-        lastSocketError.set(err?.reason ?? 'Join failed');
+      .receive('error', (err: Record<string, unknown>) => {
+        lastSocketError.set((err?.reason as string) ?? 'Join failed');
         reject(err);
       });
   });
@@ -58,8 +58,8 @@ export async function pingSocket(payload: Record<string, unknown> = {}): Promise
   return new Promise((resolve, reject) => {
     channel
       ?.push('ping', payload, 5000)
-      .receive('ok', (resp) => resolve(resp))
-      .receive('error', (err) => reject(err));
+      .receive('ok', (resp: Record<string, unknown>) => resolve(resp))
+      .receive('error', (err: Record<string, unknown>) => reject(err));
   });
 }
 

@@ -49,6 +49,9 @@ erl_crash.dump
 *.swo
 *~
 
+# Python
+__pycache__/
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -65,3 +68,5 @@ screenshots/
 # Large assets (synced separately via rsync)
 obj/
 logs/
+
+./claude

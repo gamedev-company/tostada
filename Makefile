@@ -7,11 +7,7 @@
         build build.client build.server assets.deploy \
         models.build models.clean \
         deploy.build deploy.release deploy.full \
-        new clean clean.deps
-
-# Defaults (override with `make APP_NAME=... APP_MODULE=...`)
-APP_NAME ?= tostada
-APP_MODULE ?= Tostada
+        clean clean.deps
 
 # Colors for output
 CYAN := \033[36m
@@ -158,13 +154,6 @@ deploy.release: ## Run migrations + restart (server/scripts/deploy/deploy.sh)
 
 deploy.full: ## Pull + build + deploy (server/scripts/deploy/full-deploy.sh)
 	./server/scripts/deploy/full-deploy.sh
-
-# =============================================================================
-# Initialization
-# =============================================================================
-
-new: ## Initialize a fresh project (usage: make new APP_NAME=acme APP_MODULE=Acme)
-	APP_NAME="$(APP_NAME)" APP_MODULE="$(APP_MODULE)" APP_HUMAN="$(APP_HUMAN)" APP_HOST="$(APP_HOST)" ./scripts/init.sh
 
 # =============================================================================
 # Cleanup
