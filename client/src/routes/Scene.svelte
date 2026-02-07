@@ -16,30 +16,36 @@
   });
 
   // ──────────────────────────────────────────────────────────────────────
-  // HOW TO EXTEND THIS SCENE
+  // EXTENDING THIS SCENE
   //
-  // Add objects:
+  // Add a 3D object — place anywhere alongside the existing <T.Mesh>:
+  //
   //   <T.Mesh position={[2, 0, 0]}>
   //     <T.SphereGeometry args={[0.5, 32, 32]} />
   //     <T.MeshStandardMaterial color="#38bdf8" />
   //   </T.Mesh>
   //
-  // Load a GLTF model:
-  //   import { useGltf } from '@threlte/extras';
-  //   const gltf = useGltf('/models/robot.glb');
-  //   Then in template: {#if gltf}<T is={gltf.scene} />{/if}
+  // Load a GLTF/GLB model — add the import, then drop it in the template:
   //
-  // Add physics (install @threlte/rapier + @dimforge/rapier3d-compat):
-  //   import { World, RigidBody, Collider } from '@threlte/rapier';
-  //   Wrap scene contents in <World>, then:
-  //   <RigidBody type="dynamic">
-  //     <Collider shape="cuboid" args={[0.8, 0.2, 0.5]} />
-  //     <T.Mesh> ... </T.Mesh>
-  //   </RigidBody>
+  //   import { GLTF } from '@threlte/extras';      // add to imports above
+  //   <GLTF url="/models/robot.glb" />              // add to template below
   //
-  // Post-processing (install @threlte/extras EffectComposer):
-  //   import { EffectComposer, Bloom } from '@threlte/extras';
-  //   <EffectComposer><Bloom intensity={0.5} /></EffectComposer>
+  // Enable physics — npm install @threlte/rapier @dimforge/rapier3d-compat
+  //   then wrap scene contents in <World>:
+  //
+  //   import { World, RigidBody, AutoColliders } from '@threlte/rapier';
+  //
+  //   <World gravity={[0, -9.81, 0]}>
+  //     <AutoColliders shape="cuboid">
+  //       <T.Mesh> ... </T.Mesh>
+  //     </AutoColliders>
+  //   </World>
+  //
+  // Add environment lighting — replace directional lights with:
+  //
+  //   import { Environment } from '@threlte/extras';
+  //   <Environment url="/hdri/studio.hdr" />
+  //
   // ──────────────────────────────────────────────────────────────────────
 </script>
 
