@@ -1,11 +1,10 @@
-# Tostada - Phoenix + SvelteKit Boilerplate
+# Tostada - Phoenix backend + variant-selected client
 # Run `make help` to see available commands
 
 .PHONY: help install install.server install.client dev dev.server dev.client dev.logs dev.logs.clear \
         db.create db.drop db.migrate db.rollback db.reset db.setup \
         test test.server test.client lint lint.fix typecheck \
         build build.client build.server assets.deploy \
-        models.build models.clean \
         deploy.build deploy.release deploy.full \
         clean clean.deps
 
@@ -55,7 +54,7 @@ dev.server: ## Start Phoenix server (logs to logs/server.log)
 	@mkdir -p logs
 	cd server && mix phx.server 2>&1 | tee -a ../logs/server.log
 
-dev.client: ## Start SvelteKit client
+dev.client: ## Start the client dev server (Vite)
 	cd client && npm run dev
 
 dev.logs: ## Tail the server log
@@ -133,16 +132,6 @@ assets.deploy: ## Run Phoenix asset pipeline (tailwind/esbuild + digest)
 	cd server && MIX_ENV=prod mix assets.deploy
 
 # =============================================================================
-# Models (optional pipeline)
-# =============================================================================
-
-models.build: ## Build GLTF/GLB models into client static assets
-	./scripts/build-models.sh
-
-models.clean: ## Remove generated model outputs
-	rm -rf client/src/lib/models/generated client/src/lib/models/generated-registry.ts client/static/models
-
-# =============================================================================
 # Deployment
 # =============================================================================
 
@@ -161,7 +150,7 @@ deploy.full: ## Pull + build + deploy (server/scripts/deploy/full-deploy.sh)
 
 clean: ## Clean build artifacts
 	cd server && mix clean
-	cd client && rm -rf .svelte-kit build
+	cd client && rm -rf .svelte-kit build dist
 
 clean.deps: ## Remove all dependencies
 	cd server && rm -rf deps _build

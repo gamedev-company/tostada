@@ -9,7 +9,6 @@ defmodule Tostada.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :display_name, :string
-    field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
     field :is_admin, :boolean, default: false
 
@@ -151,14 +150,6 @@ defmodule Tostada.Accounts.User do
     else
       changeset
     end
-  end
-
-  @doc """
-  Confirms the account by setting `confirmed_at`.
-  """
-  def confirm_changeset(user) do
-    now = DateTime.utc_now(:second)
-    change(user, confirmed_at: now)
   end
 
   @doc """

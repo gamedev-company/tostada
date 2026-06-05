@@ -17,18 +17,12 @@ defmodule Tostada.AccountsFixtures do
     })
   end
 
-  def unconfirmed_user_fixture(attrs \\ %{}) do
+  def user_fixture(attrs \\ %{}) do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
       |> Accounts.register_user()
 
-    user
-  end
-
-  def user_fixture(attrs \\ %{}) do
-    user = unconfirmed_user_fixture(attrs)
-    {:ok, user} = Accounts.confirm_user(user)
     user
   end
 

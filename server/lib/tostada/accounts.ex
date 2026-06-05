@@ -2,8 +2,10 @@ defmodule Tostada.Accounts do
   @moduledoc """
   The Accounts context.
 
-  Handles user registration, authentication, and account management.
-  Password-based authentication only (no magic links).
+  Handles user registration, password authentication, password reset, and
+  session-token issuance. No email confirmation flow — newly registered
+  users are active immediately. The bcrypt + Phoenix.Token primitives stay
+  on the server; client UIs are responsible for forms and routing.
   """
 
   import Ecto.Query, warn: false
@@ -73,48 +75,14 @@ defmodule Tostada.Accounts do
     User.registration_changeset(user, attrs, Keyword.put(opts, :hash_password, false))
   end
 
-  ## Settings
-
-  @doc """
-  Checks whether the user is in sudo mode.
-  User is in sudo mode when last authenticated no more than 20 minutes ago.
-  """
-  def sudo_mode?(user, minutes \\ -20)
-
-  def sudo_mode?(%User{authenticated_at: ts}, minutes) when is_struct(ts, DateTime) do
-    DateTime.after?(ts, DateTime.utc_now() |> DateTime.add(minutes, :minute))
-  end
-
-  def sudo_mode?(_user, _minutes), do: false
-
-  @doc "Returns a changeset for changing the user email."
-  def change_user_email(user, attrs \\ %{}, opts \\ []) do
-    User.email_changeset(user, attrs, opts)
-  end
-
-  @doc "Updates the user email using the given token."
-  def update_user_email(user, token) do
-    context = "change:#{user.email}"
-
-    Repo.transact(fn ->
-      with {:ok, query} <- UserToken.verify_change_email_token_query(token, context),
-           %UserToken{sent_to: email} <- Repo.one(query),
-           {:ok, user} <- Repo.update(User.email_changeset(user, %{email: email})),
-           {_count, _result} <-
-             Repo.delete_all(from(UserToken, where: [user_id: ^user.id, context: ^context])) do
-        {:ok, user}
-      else
-        _ -> {:error, :invalid_token}
-      end
-    end)
-  end
+  ## Password
 
   @doc "Returns a changeset for changing the user password."
   def change_user_password(user, attrs \\ %{}, opts \\ []) do
     User.password_changeset(user, attrs, Keyword.put(opts, :hash_password, false))
   end
 
-  @doc "Updates the user password."
+  @doc "Updates the user password and invalidates all existing tokens."
   def update_user_password(user, attrs) do
     user
     |> User.password_changeset(attrs)
@@ -145,48 +113,44 @@ defmodule Tostada.Accounts do
     :ok
   end
 
-  ## Confirmation
+  ## Password reset
 
-  @doc "Confirms a user account."
-  def confirm_user(user) do
-    user
-    |> User.confirm_changeset()
-    |> Repo.update()
-  end
+  @doc """
+  Delivers a password reset email. The caller supplies a function that
+  turns an encoded token into a URL the user can visit (in client UIs
+  this points at the SPA's `/reset-password?token=…` route).
 
-  @doc "Returns true if user is confirmed."
-  def user_confirmed?(%User{confirmed_at: confirmed_at}), do: not is_nil(confirmed_at)
-
-  @doc "Delivers confirmation instructions to the given user."
-  def deliver_user_confirmation_instructions(%User{} = user, confirmation_url_fun)
-      when is_function(confirmation_url_fun, 1) do
-    if user.confirmed_at do
-      {:error, :already_confirmed}
-    else
-      {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
-      Repo.insert!(user_token)
-      UserNotifier.deliver_confirmation_instructions(user, confirmation_url_fun.(encoded_token))
-    end
-  end
-
-  @doc "Confirms a user by the given token."
-  def confirm_user_by_token(token) do
-    with {:ok, query} <- UserToken.verify_email_token_query(token, "confirm"),
-         %User{} = user <- Repo.one(query),
-         {:ok, user} <- confirm_user(user) do
-      Repo.delete_all(from(UserToken, where: [user_id: ^user.id, context: "confirm"]))
-      {:ok, user}
-    else
-      _ -> {:error, :invalid_token}
-    end
-  end
-
-  @doc "Delivers email update instructions to the given user."
-  def deliver_user_update_email_instructions(%User{} = user, current_email, update_email_url_fun)
-      when is_function(update_email_url_fun, 1) do
-    {encoded_token, user_token} = UserToken.build_email_token(user, "change:#{current_email}")
+  Returns `{:ok, _email}` on send, `{:error, :invalid}` when the email
+  doesn't belong to a user — by design we still respond identically to
+  the client so an attacker can't enumerate accounts.
+  """
+  def deliver_user_reset_password_instructions(%User{} = user, reset_password_url_fun)
+      when is_function(reset_password_url_fun, 1) do
+    {encoded_token, user_token} = UserToken.build_email_token(user, "reset_password")
     Repo.insert!(user_token)
-    UserNotifier.deliver_update_email_instructions(user, update_email_url_fun.(encoded_token))
+    UserNotifier.deliver_reset_password_instructions(user, reset_password_url_fun.(encoded_token))
+  end
+
+  @doc """
+  Gets the user by reset password token.
+  """
+  def get_user_by_reset_password_token(token) do
+    with {:ok, query} <- UserToken.verify_email_token_query(token, "reset_password"),
+         %User{} = user <- Repo.one(query) do
+      user
+    else
+      _ -> nil
+    end
+  end
+
+  @doc """
+  Resets the user password using the supplied attrs. Deletes all of the
+  user's tokens (including the reset token) so old sessions are kicked.
+  """
+  def reset_user_password(user, attrs) do
+    user
+    |> User.password_changeset(attrs)
+    |> update_user_and_delete_all_tokens()
   end
 
   ## Token helper

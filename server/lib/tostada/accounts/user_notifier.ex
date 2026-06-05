@@ -1,12 +1,15 @@
 defmodule Tostada.Accounts.UserNotifier do
   @moduledoc """
   Email notifications for user accounts.
+
+  In dev the Swoosh local adapter is used — view sent emails at
+  http://localhost:4000/dev/mailbox. Configure a real SMTP/SES/Postmark
+  adapter in `config/runtime.exs` for production.
   """
   import Swoosh.Email
 
   alias Tostada.Mailer
 
-  # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
     email =
       new()
@@ -18,46 +21,6 @@ defmodule Tostada.Accounts.UserNotifier do
     with {:ok, _metadata} <- Mailer.deliver(email) do
       {:ok, email}
     end
-  end
-
-  @doc """
-  Deliver instructions to confirm a user account.
-  """
-  def deliver_confirmation_instructions(user, url) do
-    deliver(user.email, "Confirm your account", """
-
-    ==============================
-
-    Hi #{user.email},
-
-    You can confirm your account by visiting the URL below:
-
-    #{url}
-
-    If you didn't create an account with us, please ignore this.
-
-    ==============================
-    """)
-  end
-
-  @doc """
-  Deliver instructions to update a user email.
-  """
-  def deliver_update_email_instructions(user, url) do
-    deliver(user.email, "Update email instructions", """
-
-    ==============================
-
-    Hi #{user.email},
-
-    You can change your email by visiting the URL below:
-
-    #{url}
-
-    If you didn't request this change, please ignore this.
-
-    ==============================
-    """)
   end
 
   @doc """
